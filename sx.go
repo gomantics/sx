@@ -189,7 +189,8 @@ type CaseOption func(*CaseConfig)
 
 // CaseConfig configures case conversion behavior
 type CaseConfig struct {
-	Normalize bool // If an uppercase letter is followed by other uppercase letters (like FooBAR), they are preserved. You can use { normalize: true } for strictly following PascalCase convention.
+	// If an uppercase letter is followed by other uppercase letters (like FooBAR), they are preserved. You can use sx.WithNormalize(true) for strictly following PascalCase convention.
+	Normalize bool
 }
 
 // WithNormalize sets the normalize option
