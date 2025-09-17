@@ -24,3 +24,4 @@ go.work
 
 # Temporary files
 tmp
+*_tmp.go
