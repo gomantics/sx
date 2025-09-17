@@ -16,26 +16,26 @@ go get github.com/gomantics/sx
 package main
 
 import (
-    "fmt"
+	"fmt"
 
-    "github.com/gomantics/sx"
+	"github.com/gomantics/sx"
 )
 
 func main() {
-    // Convert to different cases
-    fmt.Println(sx.CamelCase("hello-world"))     // helloWorld
-    fmt.Println(sx.PascalCase("hello_world"))    // HelloWorld
-    fmt.Println(sx.KebabCase("HelloWorld"))      // hello-world
-    fmt.Println(sx.SnakeCase("HelloWorld"))      // hello_world
-    fmt.Println(sx.TrainCase("hello-world"))     // Hello-World
-    fmt.Println(sx.FlatCase("hello-world"))      // helloworld
+	// Convert to different cases
+	fmt.Println(sx.CamelCase("hello-world"))  // helloWorld
+	fmt.Println(sx.PascalCase("hello_world")) // HelloWorld
+	fmt.Println(sx.KebabCase("HelloWorld"))   // hello-world
+	fmt.Println(sx.SnakeCase("HelloWorld"))   // hello_world
+	fmt.Println(sx.TrainCase("hello-world"))  // Hello-World
+	fmt.Println(sx.FlatCase("hello-world"))   // helloworld
 
-    // Works with mixed separators and cases
-    fmt.Println(sx.CamelCase("mixed_caseWith-different.separators"))  // mixedCaseWithDifferentSeparators
+	// Works with mixed separators and cases
+	fmt.Println(sx.CamelCase("mixed_caseWith-different.separators")) // mixedCaseWithDifferentSeparators
 
-    // Handle complex acronyms
-    fmt.Println(sx.KebabCase("XMLHttpRequest"))  // xml-http-request
-    fmt.Println(sx.CamelCase("HTML5Parser"))     // html5Parser
+	// Handle complex acronyms
+	fmt.Println(sx.KebabCase("XMLHttpRequest"))                      // xml-http-request
+	fmt.Println(sx.CamelCase("HTML5Parser", sx.WithNormalize(true))) // html5Parser
 }
 ```
 
