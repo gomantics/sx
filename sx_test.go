@@ -169,3 +169,108 @@ func TestSplitByCase_CustomSeparators(t *testing.T) {
 		})
 	}
 }
+
+func TestPascalCase(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+		options  []sx.CaseOption
+	}{
+		{
+			name:     "camelCase to PascalCase",
+			input:    "camelCase",
+			expected: "CamelCase",
+		},
+		{
+			name:     "kebab-case to PascalCase",
+			input:    "kebab-case",
+			expected: "KebabCase",
+		},
+		{
+			name:     "snake_case to PascalCase",
+			input:    "snake_case",
+			expected: "SnakeCase",
+		},
+		{
+			name:     "mixed.case_with-separators",
+			input:    "mixed.case_with-separators",
+			expected: "MixedCaseWithSeparators",
+		},
+		{
+			name:     "XMLHttpRequest",
+			input:    "XMLHttpRequest",
+			expected: "XMLHttpRequest",
+		},
+		{
+			name:     "XMLHttpRequest normalized",
+			input:    "XMLHttpRequest",
+			expected: "XmlHttpRequest",
+			options:  []sx.CaseOption{sx.WithNormalize(true)},
+		},
+		{
+			name:     "empty string",
+			input:    "",
+			expected: "",
+		},
+		{
+			name:     "single word",
+			input:    "word",
+			expected: "Word",
+		},
+		{
+			name:     "hello--world-42",
+			input:    "hello--world-42",
+			expected: "HelloWorld42",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := sx.PascalCase(tt.input, tt.options...)
+			if result != tt.expected {
+				t.Errorf("PascalCase(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestPascalCaseWithSlice(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []string
+		expected string
+		options  []sx.CaseOption
+	}{
+		{
+			name:     "string slice",
+			input:    []string{"hello", "world", "test"},
+			expected: "HelloWorldTest",
+		},
+		{
+			name:     "string slice normalized",
+			input:    []string{"HELLO", "WORLD", "TEST"},
+			expected: "HelloWorldTest",
+			options:  []sx.CaseOption{sx.WithNormalize(true)},
+		},
+		{
+			name:     "empty slice",
+			input:    []string{},
+			expected: "",
+		},
+		{
+			name:     "single item slice",
+			input:    []string{"word"},
+			expected: "Word",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := sx.PascalCase(tt.input, tt.options...)
+			if result != tt.expected {
+				t.Errorf("PascalCase(%v) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
