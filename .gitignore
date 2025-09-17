@@ -10,6 +10,7 @@
 
 # Output of the go coverage tool
 *.out
+*.html
 
 # Dependency directories
 vendor/
@@ -20,3 +21,6 @@ go.work
 # IDE
 .vscode/
 .idea/
+
+# Temporary files
+tmp
