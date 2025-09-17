@@ -4,6 +4,7 @@ import (
 	"slices"
 	"strings"
 	"unicode"
+	"unicode/utf8"
 )
 
 // Common separators used for splitting strings
@@ -143,4 +144,91 @@ func SplitByCase(s string, opts ...SplitOption) []string {
 	}
 
 	return splitByCaseWithCustomSeparators(s, config.Separators)
+}
+
+// normalizeWord normalizes a word's case if needed
+func normalizeWord(word string, normalize bool) string {
+	if normalize {
+		return strings.ToLower(word)
+	}
+	return word
+}
+
+// capitalizeWord capitalizes the first letter of a word
+func capitalizeWord(word string) string {
+	if word == "" {
+		return word
+	}
+
+	r, size := utf8.DecodeRuneInString(word)
+	if size == 0 {
+		return word
+	}
+
+	return string(unicode.ToUpper(r)) + word[size:]
+}
+
+// joinWords joins words with a separator
+func joinWords(words []string, separator string, transform func(string, int) string) string {
+	if len(words) == 0 {
+		return ""
+	}
+
+	var result strings.Builder
+	for i, word := range words {
+		if i > 0 && separator != "" {
+			result.WriteString(separator)
+		}
+		result.WriteString(transform(word, i))
+	}
+
+	return result.String()
+}
+
+type CaseOption func(*CaseConfig)
+
+// CaseConfig configures case conversion behavior
+type CaseConfig struct {
+	// If an uppercase letter is followed by other uppercase letters (like FooBAR), they are preserved. You can use sx.WithNormalize(true) for strictly following PascalCase convention.
+	Normalize bool
+}
+
+// WithNormalize sets the normalize option
+func WithNormalize(normalize bool) CaseOption {
+	return func(c *CaseConfig) {
+		c.Normalize = normalize
+	}
+}
+
+// StringOrStringSlice represents input that can be either a string or slice of strings
+type StringOrStringSlice interface {
+	string | []string
+}
+
+// PascalCase converts input to PascalCase
+func PascalCase[T StringOrStringSlice](input T, opts ...CaseOption) string {
+	options := CaseConfig{}
+	for _, opt := range opts {
+		opt(&options)
+	}
+
+	switch v := any(input).(type) {
+	case string:
+		words := splitByCaseWithCustomSeparators(v, nil)
+		result := joinWords(words, "", func(word string, i int) string {
+			normalized := normalizeWord(word, options.Normalize)
+			return capitalizeWord(normalized)
+		})
+
+		return result
+	case []string:
+		result := joinWords(v, "", func(word string, i int) string {
+			normalized := normalizeWord(word, options.Normalize)
+			return capitalizeWord(normalized)
+		})
+
+		return result
+	default:
+		return ""
+	}
 }
