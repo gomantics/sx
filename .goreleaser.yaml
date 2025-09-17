@@ -43,9 +43,6 @@ release:
   draft: false
   replace_existing_draft: true
   target_commitish: '{{ .Commit }}'
-  header: |
-    ## What's Changed
-    
   footer: |
     
     ### Installation
