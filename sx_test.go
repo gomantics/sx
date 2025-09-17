@@ -274,3 +274,98 @@ func TestPascalCaseWithSlice(t *testing.T) {
 		})
 	}
 }
+
+func TestCamelCase(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+		options  []sx.CaseOption
+	}{
+		{
+			name:     "PascalCase to camelCase",
+			input:    "PascalCase",
+			expected: "pascalCase",
+		},
+		{
+			name:     "kebab-case to camelCase",
+			input:    "kebab-case",
+			expected: "kebabCase",
+		},
+		{
+			name:     "snake_case to camelCase",
+			input:    "snake_case",
+			expected: "snakeCase",
+		},
+		{
+			name:     "XMLHttpRequest",
+			input:    "XMLHttpRequest",
+			expected: "xMLHttpRequest",
+		},
+		{
+			name:     "XMLHttpRequest normalized",
+			input:    "XMLHttpRequest",
+			expected: "xmlHttpRequest",
+			options:  []sx.CaseOption{sx.WithNormalize(true)},
+		},
+		{
+			name:     "empty string",
+			input:    "",
+			expected: "",
+		},
+		{
+			name:     "single word",
+			input:    "Word",
+			expected: "word",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := sx.CamelCase(tt.input, tt.options...)
+			if result != tt.expected {
+				t.Errorf("CamelCase(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestCamelCaseWithSlice(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []string
+		expected string
+		options  []sx.CaseOption
+	}{
+		{
+			name:     "string slice",
+			input:    []string{"hello", "world", "test"},
+			expected: "helloWorldTest",
+		},
+		{
+			name:     "string slice normalized",
+			input:    []string{"HELLO", "WORLD", "TEST"},
+			expected: "helloWorldTest",
+			options:  []sx.CaseOption{sx.WithNormalize(true)},
+		},
+		{
+			name:     "empty slice",
+			input:    []string{},
+			expected: "",
+		},
+		{
+			name:     "single item slice",
+			input:    []string{"Word"},
+			expected: "word",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := sx.CamelCase(tt.input, tt.options...)
+			if result != tt.expected {
+				t.Errorf("CamelCase(%v) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}

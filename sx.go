@@ -232,3 +232,47 @@ func PascalCase[T StringOrStringSlice](input T, opts ...CaseOption) string {
 		return ""
 	}
 }
+
+// lowercaseWord converts the first letter to lowercase
+func lowercaseWord(word string) string {
+	if word == "" {
+		return word
+	}
+
+	r, size := utf8.DecodeRuneInString(word)
+	if size == 0 {
+		return word
+	}
+
+	return string(unicode.ToLower(r)) + word[size:]
+}
+
+// CamelCase converts input to camelCase
+func CamelCase[T StringOrStringSlice](input T, opts ...CaseOption) string {
+	switch v := any(input).(type) {
+	case string:
+		pascalCase := PascalCase(v, opts...)
+		return lowercaseWord(pascalCase)
+	case []string:
+		if len(v) == 0 {
+			return ""
+		}
+
+		options := CaseConfig{}
+		for _, opt := range opts {
+			opt(&options)
+		}
+
+		result := joinWords(v, "", func(word string, i int) string {
+			normalized := normalizeWord(word, options.Normalize)
+			if i == 0 {
+				return lowercaseWord(normalized)
+			}
+
+			return capitalizeWord(normalized)
+		})
+		return result
+	default:
+		return ""
+	}
+}
