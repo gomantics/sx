@@ -73,6 +73,10 @@ sx.KebabCase("hello world", "|")  // hello|world
 
 Contributors are always welcome! Feel free to raise a PR or create an issue first.
 
+## Acknowledgements
+
+This library is highly inspired by [scule](https://github.com/unjs/scule) - a fantastic JavaScript string case utility library by the UnJS team.
+
 ## License
 
 MIT
