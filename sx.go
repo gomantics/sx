@@ -116,15 +116,13 @@ type SplitOption func(*SplitConfig)
 
 // SplitConfig holds the configuration for splitting behavior
 type SplitConfig struct {
-	Separators  []rune
-	UseDefaults bool
+	Separators []rune
 }
 
 // defaultSplitConfig returns the default configuration
 func defaultSplitConfig() *SplitConfig {
 	return &SplitConfig{
-		Separators:  defaultSeparators,
-		UseDefaults: true,
+		Separators: nil, // nil means use defaults
 	}
 }
 
@@ -133,7 +131,6 @@ func WithSeparators(separators ...rune) SplitOption {
 	return func(c *SplitConfig) {
 		c.Separators = make([]rune, len(separators))
 		copy(c.Separators, separators)
-		c.UseDefaults = false
 	}
 }
 
@@ -145,12 +142,5 @@ func SplitByCase(s string, opts ...SplitOption) []string {
 		opt(config)
 	}
 
-	var separators []rune
-	if config.UseDefaults {
-		separators = nil
-	} else {
-		separators = config.Separators
-	}
-
-	return splitByCaseWithCustomSeparators(s, separators)
+	return splitByCaseWithCustomSeparators(s, config.Separators)
 }
