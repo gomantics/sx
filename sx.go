@@ -169,13 +169,25 @@ func capitalizeWord(word string) string {
 }
 
 // joinWords joins words with a separator
-func joinWords(words []string, separator string, transform func(string, int) string) string {
+func joinWords(words []string, separator string, preserveEmpty bool, transform func(string, int) string) string {
 	if len(words) == 0 {
 		return ""
 	}
 
+	// Filter out empty words if not preserving them
+	wordsToUse := words
+	if !preserveEmpty {
+		var filteredWords []string
+		for _, word := range words {
+			if word != "" {
+				filteredWords = append(filteredWords, word)
+			}
+		}
+		wordsToUse = filteredWords
+	}
+
 	var result strings.Builder
-	for i, word := range words {
+	for i, word := range wordsToUse {
 		if i > 0 && separator != "" {
 			result.WriteString(separator)
 		}
@@ -215,14 +227,14 @@ func PascalCase[T StringOrStringSlice](input T, opts ...CaseOption) string {
 	switch v := any(input).(type) {
 	case string:
 		words := splitByCaseWithCustomSeparators(v, nil)
-		result := joinWords(words, "", func(word string, i int) string {
+		result := joinWords(words, "", false, func(word string, i int) string {
 			normalized := normalizeWord(word, options.Normalize)
 			return capitalizeWord(normalized)
 		})
 
 		return result
 	case []string:
-		result := joinWords(v, "", func(word string, i int) string {
+		result := joinWords(v, "", false, func(word string, i int) string {
 			normalized := normalizeWord(word, options.Normalize)
 			return capitalizeWord(normalized)
 		})
@@ -263,7 +275,7 @@ func CamelCase[T StringOrStringSlice](input T, opts ...CaseOption) string {
 			opt(&options)
 		}
 
-		result := joinWords(v, "", func(word string, i int) string {
+		result := joinWords(v, "", false, func(word string, i int) string {
 			normalized := normalizeWord(word, options.Normalize)
 			if i == 0 {
 				return lowercaseWord(normalized)
@@ -275,4 +287,74 @@ func CamelCase[T StringOrStringSlice](input T, opts ...CaseOption) string {
 	default:
 		return ""
 	}
+}
+
+// KebabCase converts input to kebab-case
+func KebabCase[T StringOrStringSlice](input T, separator ...string) string {
+	sep := "-"
+	if len(separator) > 0 {
+		sep = separator[0]
+	}
+
+	switch v := any(input).(type) {
+	case string:
+		words := splitByCaseWithCustomSeparators(v, nil)
+		result := joinWords(words, sep, true, func(word string, i int) string {
+			return strings.ToLower(word)
+		})
+		return result
+	case []string:
+		result := joinWords(v, sep, true, func(word string, i int) string {
+			return strings.ToLower(word)
+		})
+		return result
+	default:
+		return ""
+	}
+}
+
+// SnakeCase converts input to snake_case
+func SnakeCase[T StringOrStringSlice](input T) string {
+	return KebabCase(input, "_")
+}
+
+// TrainCase converts input to Train-Case
+func TrainCase[T StringOrStringSlice](input T, opts ...CaseOption) string {
+	options := CaseConfig{}
+	for _, opt := range opts {
+		opt(&options)
+	}
+
+	switch v := any(input).(type) {
+	case string:
+		words := splitByCaseWithCustomSeparators(v, nil)
+		result := joinWords(words, "-", false, func(word string, i int) string {
+			normalized := normalizeWord(word, options.Normalize)
+			return capitalizeWord(normalized)
+		})
+		return result
+	case []string:
+		result := joinWords(v, "-", false, func(word string, i int) string {
+			normalized := normalizeWord(word, options.Normalize)
+			return capitalizeWord(normalized)
+		})
+		return result
+	default:
+		return ""
+	}
+}
+
+// FlatCase converts input to flatcase (no separators)
+func FlatCase[T StringOrStringSlice](input T) string {
+	return KebabCase(input, "")
+}
+
+// UpperFirst converts the first character to uppercase
+func UpperFirst(s string) string {
+	return capitalizeWord(s)
+}
+
+// LowerFirst converts the first character to lowercase
+func LowerFirst(s string) string {
+	return lowercaseWord(s)
 }

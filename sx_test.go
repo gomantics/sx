@@ -369,3 +369,254 @@ func TestCamelCaseWithSlice(t *testing.T) {
 		})
 	}
 }
+
+func TestKebabCase(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     string
+		expected  string
+		separator string
+	}{
+		{
+			name:     "camelCase to kebab-case",
+			input:    "camelCase",
+			expected: "camel-case",
+		},
+		{
+			name:     "PascalCase to kebab-case",
+			input:    "PascalCase",
+			expected: "pascal-case",
+		},
+		{
+			name:     "snake_case to kebab-case",
+			input:    "snake_case",
+			expected: "snake-case",
+		},
+		{
+			name:     "XMLHttpRequest to kebab-case",
+			input:    "XMLHttpRequest",
+			expected: "xml-http-request",
+		},
+		{
+			name:      "custom separator",
+			input:     "camelCase",
+			expected:  "camel|case",
+			separator: "|",
+		},
+		{
+			name:     "empty string",
+			input:    "",
+			expected: "",
+		},
+		{
+			name:     "single word",
+			input:    "word",
+			expected: "word",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var result string
+
+			if tt.separator != "" {
+				result = sx.KebabCase(tt.input, tt.separator)
+			} else {
+				result = sx.KebabCase(tt.input)
+			}
+
+			if result != tt.expected {
+				t.Errorf("KebabCase(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestSnakeCase(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "camelCase to snake_case",
+			input:    "camelCase",
+			expected: "camel_case",
+		},
+		{
+			name:     "PascalCase to snake_case",
+			input:    "PascalCase",
+			expected: "pascal_case",
+		},
+		{
+			name:     "kebab-case to snake_case",
+			input:    "kebab-case",
+			expected: "kebab_case",
+		},
+		{
+			name:     "XMLHttpRequest to snake_case",
+			input:    "XMLHttpRequest",
+			expected: "xml_http_request",
+		},
+		{
+			name:     "empty string",
+			input:    "",
+			expected: "",
+		},
+		{
+			name:     "single word",
+			input:    "word",
+			expected: "word",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := sx.SnakeCase(tt.input)
+			if result != tt.expected {
+				t.Errorf("SnakeCase(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestTrainCase(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+		options  []sx.CaseOption
+	}{
+		{
+			name:     "camelCase to Train-Case",
+			input:    "camelCase",
+			expected: "Camel-Case",
+		},
+		{
+			name:     "snake_case to Train-Case",
+			input:    "snake_case",
+			expected: "Snake-Case",
+		},
+		{
+			name:     "XMLHttpRequest to Train-Case",
+			input:    "XMLHttpRequest",
+			expected: "XML-Http-Request",
+		},
+		{
+			name:     "XMLHttpRequest normalized",
+			input:    "XMLHttpRequest",
+			expected: "Xml-Http-Request",
+			options:  []sx.CaseOption{sx.WithNormalize(true)},
+		},
+		{
+			name:     "empty string",
+			input:    "",
+			expected: "",
+		},
+		{
+			name:     "single word",
+			input:    "word",
+			expected: "Word",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := sx.TrainCase(tt.input, tt.options...)
+			if result != tt.expected {
+				t.Errorf("TrainCase(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestFlatCase(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "camelCase to flatcase",
+			input:    "camelCase",
+			expected: "camelcase",
+		},
+		{
+			name:     "PascalCase to flatcase",
+			input:    "PascalCase",
+			expected: "pascalcase",
+		},
+		{
+			name:     "kebab-case to flatcase",
+			input:    "kebab-case",
+			expected: "kebabcase",
+		},
+		{
+			name:     "XMLHttpRequest to flatcase",
+			input:    "XMLHttpRequest",
+			expected: "xmlhttprequest",
+		},
+		{
+			name:     "empty string",
+			input:    "",
+			expected: "",
+		},
+		{
+			name:     "single word",
+			input:    "Word",
+			expected: "word",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := sx.FlatCase(tt.input)
+			if result != tt.expected {
+				t.Errorf("FlatCase(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestEdgeCases(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		function func(string) string
+		expected string
+	}{
+		{
+			name:     "unicode characters",
+			input:    "helloWörld",
+			function: func(s string) string { return sx.CamelCase(s) },
+			expected: "helloWörld",
+		},
+		{
+			name:     "numbers in string",
+			input:    "html5Parser",
+			function: func(s string) string { return sx.PascalCase(s) },
+			expected: "Html5Parser",
+		},
+		{
+			name:     "consecutive uppercase",
+			input:    "HTTPSConnection",
+			function: func(s string) string { return sx.KebabCase(s) },
+			expected: "https-connection",
+		},
+		{
+			name:     "mixed separators",
+			input:    "hello_world-test.case/example",
+			function: func(s string) string { return sx.CamelCase(s) },
+			expected: "helloWorldTestCaseExample",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := tt.function(tt.input)
+			if result != tt.expected {
+				t.Errorf("Function(%q) = %q, want %q", tt.input, result, tt.expected)
+			}
+		})
+	}
+}
